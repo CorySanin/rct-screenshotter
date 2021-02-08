@@ -11,7 +11,8 @@ services:
       ports:
          - 5900:5900
       volumes:
-         - "/home/cory/.steam/steam/steamapps/common/Rollercoaster Tycoon 2:/home/user/game"
+         # replace with path to RCT2 if different
+         - "~/.steam/steam/steamapps/common/Rollercoaster Tycoon 2:/home/user/game"
          - ./config/screenshot:/home/user/.config/OpenRCT2/screenshot
       environment:
          TZ: "America/Chicago"

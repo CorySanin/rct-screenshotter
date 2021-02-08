@@ -1,18 +1,30 @@
-FROM node:12-alpine AS build-env
 
-WORKDIR /build
+FROM corysanin/openrct2-cli:develop-ubuntu AS rct2
 
-RUN apk add --no-cache git python make gcc g++
+FROM dorowu/ubuntu-desktop-lxde-vnc:focal
 
-COPY . .
+USER root
+ENV DEBIAN_FRONTEND=noninteractive
+COPY --from=rct2 /usr /usr
 
-RUN npm install
+COPY ./scripts/start.sh /usr/start.sh
 
-FROM node:12-alpine
-RUN addgroup -S orct2discord && adduser -S orct2discord -G orct2discord
-WORKDIR /usr/src/openrct2-discord
-COPY --from=build-env /build .
-USER orct2discord
+RUN chmod 777 /usr/start.sh \
+  && apt-get update \
+  && apt-get install --no-install-recommends -y libsdl2-2.0 libspeexdsp1 libgl1 apt-utils software-properties-common -y \
+  && rm -rf /var/lib/apt/lists/* \
+  && cp /startup.sh /startdesktop.sh
 
-EXPOSE 35711
-CMD [ "node", "index.js"]
+COPY ./lib/screenshotter.js ./.config/OpenRCT2/plugin/
+
+COPY ./config/* ./.config/OpenRCT2/
+
+EXPOSE 5900
+
+ENV OPENBOX_ARGS="--startup /usr/start.sh"
+ENV RESOLUTION=1280x900
+ENV USER=user
+ENV DISPLAY=:1
+
+#same entrypoint as parent
+ENTRYPOINT ["/startup.sh"]

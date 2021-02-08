@@ -5,7 +5,7 @@ const params = ['filename', 'width', 'height', 'x', 'y', 'zoom', 'rotation'];
 function main() {
     let options: CaptureOptions = {
         zoom: 1,
-        rotation: 0
+        rotation: ui.mainViewport.rotation
     };
     let position = {};
 

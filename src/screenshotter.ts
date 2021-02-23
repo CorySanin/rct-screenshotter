@@ -1,6 +1,6 @@
 /// <reference path="../types/openrct2.d.ts" />
 
-const params = ['filename', 'width', 'height', 'x', 'y', 'zoom', 'rotation'];
+const params = ['filename', 'width', 'height', 'x', 'y', 'zoom', 'rotation', 'transparent'];
 
 function main() {
     let options: CaptureOptions = {

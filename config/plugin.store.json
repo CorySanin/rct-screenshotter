@@ -7,6 +7,7 @@
         "x": null,
         "y": null,
         "zoom": null,
-        "rotation": null
+        "rotation": null,
+        "transparent": true
     }
 }

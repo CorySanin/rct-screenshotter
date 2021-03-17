@@ -1,0 +1,17 @@
+{
+  "name": "openrct2-screenshotter-docker",
+  "version": "1.0.0",
+  "description": "REST API for getting screenshots of OpenRCT2 maps",
+  "main": "index.js",
+  "dependencies": {
+    "express": "4.17.1",
+    "express-fileupload": "1.2.1",
+    "moment": "2.29.1"
+  },
+  "keywords": [
+    "openrct2",
+    "plugin"
+  ],
+  "author": "Cory Sanin",
+  "license": "MIT"
+}

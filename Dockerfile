@@ -17,8 +17,6 @@ RUN curl -fsSL https://deb.nodesource.com/setup_12.x | bash - \
   && rm -rf /var/lib/apt/lists/* \
   && cp /startup.sh /startdesktop.sh
 
-COPY ./lib/screenshotter.js ./.config/OpenRCT2/plugin/
-
 COPY ./config/* ./.config/OpenRCT2/
 
 WORKDIR /usr/src/screenshotter

@@ -9,10 +9,9 @@ services:
          dockerfile: ./Dockerfile
       restart: "unless-stopped"
       ports:
-         - 5900:5900
          - 8080:8080
       volumes:
          # replace with path to RCT2 if different
-         - "~/.steam/steam/steamapps/common/Rollercoaster Tycoon 2:/home/user/game"
+         - "~/.steam/steam/steamapps/common/Rollercoaster Tycoon 2:/game"
       environment:
          TZ: "America/Chicago"

@@ -7,10 +7,11 @@ COPY --from=rct2 /usr /usr
 
 WORKDIR /usr/src/screenshotter
 
-COPY ./docker .
+COPY . .
 COPY ./config /home/node/.config/OpenRCT2/
 
-RUN chown -R node:node /home/node/.config/OpenRCT2
+RUN npm install \
+  && chown -R node:node /home/node/.config/OpenRCT2
 
 USER node
 

@@ -1,23 +1,27 @@
 {
-  "name": "openrct2-screenshotter",
+  "name": "rct-screenshotter",
   "version": "1.0.0",
-  "description": "Plugin that takes a screenshot. Yeah.",
-  "scripts": {
-    "build": "tsc",
-    "gettypes": "curl https://raw.githubusercontent.com/OpenRCT2/OpenRCT2/develop/distribution/openrct2.d.ts > types/openrct2.d.ts"
+  "description": "REST API for getting screenshots of Rollercoaster Tycoon maps",
+  "main": "index.js",
+  "dependencies": {
+    "express": "4.17.1",
+    "express-fileupload": "1.2.1",
+    "moment": "2.29.1",
+    "phin": "3.5.1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/CorySanin/openrct2-screenshotter.git"
+    "url": "git+https://github.com/CorySanin/rct-screenshotter.git"
   },
   "keywords": [
     "openrct2",
-    "plugin"
+    "screenshot",
+    "Rollercoaster Tycoon"
   ],
   "author": "Cory Sanin",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/CorySanin/openrct2-screenshotter/issues"
+    "url": "https://github.com/CorySanin/rct-screenshotter/issues"
   },
-  "homepage": "https://github.com/CorySanin/openrct2-screenshotter#readme"
+  "homepage": "https://github.com/CorySanin/rct-screenshotter#readme"
 }

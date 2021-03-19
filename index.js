@@ -131,6 +131,10 @@ app.get('/upload', async (req, res) => {
     }
 });
 
+app.get('/', (req, res) => {
+    res.send('Screenshotter');
+});
+
 app.listen(PORT, () => {
     console.log(`Web server listening on port ${PORT}.`);
     fs.mkdir(PARKDIR, { recursive: true }, err => {

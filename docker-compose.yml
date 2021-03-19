@@ -2,8 +2,8 @@ version: '2'
 
 services:
    
-   openrct2-screenshotter:
-      container_name: openrct2-screenshotter
+   rct-screenshotter:
+      container_name: rct-screenshotter
       build:
          context: ./
          dockerfile: ./Dockerfile
@@ -13,5 +13,3 @@ services:
       volumes:
          # replace with path to RCT2 if different
          - "~/.steam/steam/steamapps/common/Rollercoaster Tycoon 2:/game"
-      environment:
-         TZ: "America/Chicago"

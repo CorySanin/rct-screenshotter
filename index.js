@@ -24,7 +24,7 @@ function getFileNum() {
 function getScreenshot(file, options = {}) {
     return new Promise((resolve, reject) => {
         let destination = path.join(SCREENSHOTDIR, `screenshot_${moment().format('HHmmssSS')}_${getFileNum()}.png`);
-        let process = spawn('openrct2', ['screenshot', `${file}`, destination, 'giant', Math.min(parseInt(options.zoom || 3), 7), parseInt(options.rotation || 0) % 4]);
+        let process = spawn('openrct2', ['screenshot', `${file}`, destination, 'giant', Math.max(Math.min(parseInt(options.zoom || 3), 7), 0), parseInt(options.rotation || 0) % 4]);
         let timeout = setTimeout(() => {
             reject('Timed out');
             process.kill();

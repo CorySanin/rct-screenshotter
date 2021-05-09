@@ -55,7 +55,7 @@ app.use(fileUpload({
 app.post('/upload', async (req, res) => {
     try {
         if (!req.files || !req.files.park) {
-            res.send({
+            res.status(400).send({
                 status: 'bad'
             });
         }
@@ -65,7 +65,12 @@ app.post('/upload', async (req, res) => {
             await park.mv(filename);
 
             let image = await getScreenshot(filename, req.query);
-            res.sendFile(image, () => {
+            res.sendFile(image, (err) => {
+                if(err){
+                    res.status(500).send({
+                        status: 'bad'
+                    });
+                }
                 fs.unlink(image, (err) => {
                     if (err) {
                         console.log(err);
@@ -81,7 +86,7 @@ app.post('/upload', async (req, res) => {
     }
     catch (ex) {
         console.log(ex);
-        res.send({
+        res.status(500).send({
             status: 'bad'
         });
     }
@@ -90,7 +95,7 @@ app.post('/upload', async (req, res) => {
 app.get('/upload', async (req, res) => {
     try {
         if (!req.query || !req.query.url) {
-            res.send({
+            res.status(400).send({
                 status: 'bad'
             });
         }
@@ -106,7 +111,7 @@ app.get('/upload', async (req, res) => {
             let image = await getScreenshot(filename, req.query);
             res.sendFile(image, (err) => {
                 if(err){
-                    res.send({
+                    res.status(500).send({
                         status: 'bad'
                     });
                 }

@@ -15,7 +15,7 @@ jobs:
       GH_REGISTRY: ghcr.io
       IMAGE_NAME: ${{ github.repository }}
       REPOSITORY: ${{ github.event.repository.name }}
-      DOCKER_USERNAME: corysanin
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
     permissions:
       contents: read
       packages: write

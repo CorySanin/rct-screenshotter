@@ -44,6 +44,8 @@ function getScreenshot(file, options = {}) {
     });
 }
 
+app.set('trust proxy', 1);
+app.set('view engine', 'ejs');
 app.use(fileUpload({
     createParentPath: true,
     abortOnLimit: true,
@@ -66,7 +68,7 @@ app.post('/upload', async (req, res) => {
 
             let image = await getScreenshot(filename, req.query);
             res.sendFile(image, (err) => {
-                if(err){
+                if (err) {
                     res.status(500).send({
                         status: 'bad'
                     });
@@ -110,7 +112,7 @@ app.get('/upload', async (req, res) => {
 
             let image = await getScreenshot(filename, req.query);
             res.sendFile(image, (err) => {
-                if(err){
+                if (err) {
                     res.status(500).send({
                         status: 'bad'
                     });
@@ -137,7 +139,17 @@ app.get('/upload', async (req, res) => {
 });
 
 app.get('/', (req, res) => {
-    res.send('Screenshotter');
+    res.render('index',
+        function (err, html) {
+            if (!err) {
+                res.send(html);
+            }
+            else {
+                console.log(err);
+                res.send();
+            }
+        }
+    )
 });
 
 app.listen(PORT, () => {

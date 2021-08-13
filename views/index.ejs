@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+
+<head>
+    <title>RCT Screenshotter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body>
+    <form method="POST" action="/upload" enctype="multipart/form-data">
+        <div class="formcolumns">
+            <label for="parkfile">Park Save:</label> <input class="fileinput" type="file" name="park" id="parkfile">
+            <!-- <label for="zoomrange">Zoom:</label>
+            <input id="zoomrange" type="range" min="0" max="7" value="3" step="1" />
+            <label for="rotationrange">Rotation:</label>
+            <input id="rotationrange" type="range" min="0" max="3" value="0" step="1" /> -->
+        </div>
+        <input type="submit" value="Upload" />
+    </form>
+</body>
+
+</html>

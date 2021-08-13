@@ -1,4 +1,4 @@
-FROM corysanin/openrct2-cli:develop-alpine AS rct2
+FROM corysanin/openrct2-cli:latest-alpine AS rct2
 
 FROM node:alpine3.13
 
@@ -7,8 +7,8 @@ COPY --from=rct2 /usr /usr
 
 WORKDIR /usr/src/screenshotter
 
-COPY . .
 COPY ./config /home/node/.config/OpenRCT2/
+COPY . .
 
 RUN npm install \
   && chown -R node:node /home/node/.config/OpenRCT2

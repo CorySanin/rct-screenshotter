@@ -63,7 +63,9 @@ app.post('/upload', async (req, res) => {
         }
         else {
             let park = req.files.park;
-            let filename = path.join(PARKDIR, `upload_${moment().format('YYYYMMDD')}_${getFileNum()}.sv6`);
+            let fext = req.files.park.name.split('.');
+            fext = fext[fext.length - 1];
+            let filename = path.join(PARKDIR, `upload_${moment().format('YYYYMMDD')}_${getFileNum()}.${fext}`);
             await park.mv(filename);
 
             let image = await getScreenshot(filename, req.query);

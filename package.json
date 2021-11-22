@@ -8,7 +8,7 @@
     "express": "4.17.1",
     "express-fileupload": "1.2.1",
     "moment": "2.29.1",
-    "phin": "3.5.1"
+    "phin": "3.6.1"
   },
   "repository": {
     "type": "git",

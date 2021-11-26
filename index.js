@@ -12,6 +12,7 @@ const HOME = process.env[(process.platform === 'win32') ? 'USERPROFILE' : 'HOME'
 const PARKDIR = process.env.PARKDIR || path.join(HOME, '.config', 'OpenRCT2', 'save');
 const SCREENSHOTDIR = process.env.SCREENSHOTDIR || path.join(HOME, '.config', 'OpenRCT2', 'screenshot');
 const FILENUMMAX = 100000;
+const TIMEOUT = process.env.TIMEOUT || 20000;
 
 const app = express();
 
@@ -28,7 +29,7 @@ function getScreenshot(file, options = {}) {
         let timeout = setTimeout(() => {
             reject('Timed out');
             process.kill();
-        }, 10000);
+        }, TIMEOUT);
 
         process.on('exit', (code) => {
             if (code !== null) {

@@ -157,7 +157,7 @@ app.get('/', (req, res) => {
     )
 });
 
-app.listen(PORT, () => {
+let server = app.listen(PORT, () => {
     console.log(`Web server listening on port ${PORT}.`);
     fs.mkdir(PARKDIR, { recursive: true }, err => {
         if (err) {
@@ -170,3 +170,5 @@ app.listen(PORT, () => {
         }
     })
 });
+
+process.on('SIGTERM', server.close);

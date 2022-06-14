@@ -25,7 +25,7 @@ function getFileNum() {
 function getScreenshot(file, options = {}) {
     return new Promise((resolve, reject) => {
         let destination = path.join(SCREENSHOTDIR, `screenshot_${moment().format('HHmmssSS')}_${getFileNum()}.png`);
-        let proc = spawn('openrct2', ['screenshot', `${file}`, destination, 'giant', Math.max(Math.min(parseInt(options.zoom || 3), 7), 0), parseInt(options.rotation || 0) % 4], {
+        let proc = spawn('openrct2-cli', ['screenshot', `${file}`, destination, 'giant', Math.max(Math.min(parseInt(options.zoom || 3), 7), 0), parseInt(options.rotation || 0) % 4], {
             stdio: ['ignore', process.stdout, process.stderr]
         });
         let timeout = setTimeout(() => {

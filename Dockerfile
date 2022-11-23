@@ -11,6 +11,7 @@ COPY ./config /home/node/.config/OpenRCT2/
 COPY . .
 
 RUN npm install \
+  && mkdir /home/node/.config/OpenRCT2/object \
   && chown -R node:node /home/node/.config/OpenRCT2
 
 USER node

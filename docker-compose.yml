@@ -12,4 +12,5 @@ services:
          - 8080:8080
       volumes:
          # replace with path to RCT2 if different
-         - "~/.steam/steam/steamapps/common/Rollercoaster Tycoon 2:/game"
+         - "~/.steam/steam/steamapps/common/Rollercoaster Tycoon 2:/rct2"
+         - "~/.steam/steam/steamapps/common/RollerCoaster Tycoon Deluxe:/rct1"

@@ -2,7 +2,7 @@
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/corysanin/rct-screenshotter)](https://hub.docker.com/r/corysanin/rct-screenshotter)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/CorySanin/rct-screenshotter/docker-image.yml)](https://github.com/CorySanin/rct-screenshotter/actions)
-[![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/CorySanin/rct-screenshotter)](https://libraries.io/github/CorySanin/rct-screenshotter)
+![Depfu](https://img.shields.io/depfu/dependencies/github/CorySanin/rct-screenshotter)
 [![GitHub repo size](https://img.shields.io/github/repo-size/CorySanin/rct-screenshotter)](https://github.com/CorySanin/rct-screenshotter)
 [![GitHub](https://img.shields.io/github/license/CorySanin/rct-screenshotter)](https://github.com/CorySanin/rct-screenshotter/blob/master/LICENSE)
 

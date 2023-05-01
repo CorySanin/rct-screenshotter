@@ -3,18 +3,20 @@ const fsp = fs.promises;
 const path = require('path');
 const spawn = require('child_process').spawn;
 const express = require('express');
-const fileUpload = require('express-fileupload');
+const multer  = require('multer');
 const moment = require('moment');
 const phin = require('phin');
 
 const PORT = process.env.PORT || 8080;
 const HOME = process.env[(process.platform === 'win32') ? 'USERPROFILE' : 'HOME'];
-const PARKDIR = process.env.PARKDIR || path.join(HOME, '.config', 'OpenRCT2', 'save');
-const SCREENSHOTDIR = process.env.SCREENSHOTDIR || path.join(HOME, '.config', 'OpenRCT2', 'screenshot');
+const GAMEDIR = process.env.GAMEDIR || path.join(HOME, (process.platform === 'win32') ? 'Documents' : '.config', 'OpenRCT2');
+const PARKDIR = process.env.PARKDIR || path.join(GAMEDIR, 'save');
+const SCREENSHOTDIR = process.env.SCREENSHOTDIR || path.join(GAMEDIR, 'screenshot');
 const FILENUMMAX = 100000;
 const TIMEOUT = process.env.TIMEOUT || 20000;
 
 const app = express();
+const upload = multer({ dest: PARKDIR });
 
 let filenum = 0;
 
@@ -25,7 +27,7 @@ function getFileNum() {
 function getScreenshot(file, options = {}) {
     return new Promise((resolve, reject) => {
         let destination = path.join(SCREENSHOTDIR, `screenshot_${moment().format('HHmmssSS')}_${getFileNum()}.png`);
-        let proc = spawn('openrct2-cli', ['screenshot', `${file}`, destination, 'giant', Math.max(Math.min(parseInt(options.zoom || 3), 7), 0), parseInt(options.rotation || 0) % 4], {
+        let proc = spawn('openrct2-cli', ['screenshot', `${file}`, destination, 'giant', Math.min(Math.abs(parseInt(options.zoom || 3)), 7), parseInt(options.rotation || 0) % 4], {
             stdio: ['ignore', process.stdout, process.stderr]
         });
         let timeout = setTimeout(() => {
@@ -49,29 +51,22 @@ function getScreenshot(file, options = {}) {
 
 app.set('trust proxy', 1);
 app.set('view engine', 'ejs');
-app.use(fileUpload({
-    createParentPath: true,
-    abortOnLimit: true,
-    limits: {
-        fileSize: 100 * 1024 * 1024
-    }
-}));
 
-app.post('/upload', async (req, res) => {
+app.use('/assets/', express.static('assets'));
+
+app.post('/upload', upload.single('park'), async (req, res) => {
     try {
-        if (!req.files || !req.files.park) {
+        if (!req.file) {
             res.status(400).send({
                 status: 'bad'
             });
         }
         else {
-            let park = req.files.park;
-            let fext = req.files.park.name.split('.');
-            fext = fext[fext.length - 1];
-            let filename = path.join(PARKDIR, `upload_${moment().format('YYYYMMDD')}_${getFileNum()}.${fext}`);
-            await park.mv(filename);
-
-            let image = await getScreenshot(filename, req.query);
+            let options = {
+                zoom: req.body.zoom || req.query.zoom,
+                rotation: req.body.rotation || req.query.rotation,
+            };
+            let image = await getScreenshot(req.file.path, options);
             res.sendFile(image, (err) => {
                 if (err) {
                     res.status(500).send({
@@ -84,7 +79,7 @@ app.post('/upload', async (req, res) => {
                     }
                 });
             });
-            fs.unlink(filename, (err) => {
+            fs.unlink(req.file.path, (err) => {
                 if (err) {
                     console.log(err);
                 }
@@ -158,7 +153,7 @@ app.get('/', (req, res) => {
 });
 
 let server = app.listen(PORT, () => {
-    console.log(`Web server listening on port ${PORT}.`);
+    console.log(`RCT Screenshotter listening on port ${PORT}.`);
     fs.mkdir(PARKDIR, { recursive: true }, err => {
         if (err) {
             console.log(err);

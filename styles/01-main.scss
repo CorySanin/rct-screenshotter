@@ -1,0 +1,139 @@
+:root {
+    --off-white: #FAFAFA;
+    --main-bg-color: var(--off-white);
+    --main-font-color: #000;
+    --modal-bg-color: #BDBDBD;
+    --modal-bg-hightlight: #CDCDCD;
+    --link-color: #1565C0;
+    --drop-zone-bg: rgba(100, 100, 100, 0.6);
+}
+
+
+html,
+body {
+    height: 100%;
+    background-color: var(--main-bg-color);
+    color: var(--main-font-color);
+    font-family: sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --main-bg-color: #212121;
+        --main-font-color: var(--off-white);
+        --modal-bg-color: #424242;
+        --modal-bg-hightlight: #616161;
+        --link-color: #64B5F6;
+        --drop-zone-bg: rgba(150, 150, 150, 0.6);
+    }
+}
+
+h1 {
+    font-size: 1.5em;
+    padding: .5em .75em;
+}
+
+h1.container-header {
+    background-color: var(--modal-bg-color);
+    display: inline-block;
+    border-radius: .4em .4em 0 0;
+}
+
+body h1 a,
+body h2 a {
+    color: inherit;
+}
+
+a {
+    color: var(--link-color);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.form-columns {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    row-gap: .25em;
+    column-gap: 1.25em;
+}
+
+.midcenter {
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+}
+
+.container {
+    padding: 1em 1.5em;
+    border-radius: .4em;
+    background-color: var(--modal-bg-color);
+}
+
+h1+.container {
+    border-radius: 0 .4em .4em .4em;
+}
+
+.center {
+    text-align: center;
+}
+
+.display-none.display-none.display-none {
+    display: none;
+}
+
+.children-pointer-events-none *,
+.pointer-events-none {
+    pointer-events: none;
+}
+
+.file-input-button {
+    cursor: pointer;
+    display: inline;
+    background-color: transparent;
+    border: none;
+    color: inherit;
+    text-align: left;
+}
+
+#footer {
+    margin-top: .5em;
+
+    li {
+        display: inline-block;
+        margin-right: .5em;
+
+        &>a {
+            display: inline-block;
+            padding: .3em .4em;
+            background-color: var(--modal-bg-color);
+            border-radius: 1em;
+
+            &:hover,
+            &:focus {
+                background-color: var(--modal-bg-hightlight);
+            }
+        }
+    }
+}
+
+#dropzone {
+    display: none;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 9999;
+    background-color: var(--drop-zone-bg);
+    border: .25em dashed var(--off-white);
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--off-white);
+}

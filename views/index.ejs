@@ -2,21 +2,49 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 
 <head>
-    <title>RCT Screenshotter</title>
+    <title>RCT Screenshotter - Create RollerCoaster Tycoon Screenshots Online</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="/assets/css/styles.css?v1">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📸</text></svg>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description"
+        content="Generate a RollerCoaster Tycoon screenshot from a save file. Compatible with RollerCoaster Tycoon 1, RollerCoaster Tycoon 2, and OpenRCT2." />
 </head>
 
 <body>
-    <form method="POST" action="/upload" enctype="multipart/form-data">
-        <div class="formcolumns">
-            <label for="parkfile">Park Save:</label> <input class="fileinput" type="file" name="park" id="parkfile">
-            <!-- <label for="zoomrange">Zoom:</label>
-            <input id="zoomrange" type="range" min="0" max="7" value="3" step="1" />
-            <label for="rotationrange">Rotation:</label>
-            <input id="rotationrange" type="range" min="0" max="3" value="0" step="1" /> -->
+    <div class="midcenter">
+        <h1 class="container-header"><a href="/">RCT Screenshotter</a></h1>
+        <div class="container">
+            <form method="POST" action="/upload" enctype="multipart/form-data">
+                <div class="form-columns">
+                    <label for="parkfile">Park Save:</label>
+                    <button id="filebutton" class="display-none file-input-button" type="button">Browse for
+                        file...</button>
+                    <input id="parkfile" type="file" name="park">
+                    <label for="zoomrange">Size:</label>
+                    <input id="zoomrange" type="range" min="-7" max="0" value="-3" step="1" name="zoom" />
+                    <label for="rotationrange">Rotation:</label>
+                    <input id="rotationrange" type="range" min="0" max="3" value="0" step="1" name="rotation" />
+                </div>
+                <div class="center"><input type="submit" value="Upload" /></div>
+            </form>
         </div>
-        <input type="submit" value="Upload" />
-    </form>
+        <footer>
+            <div id="footer">
+                <ul>
+                    <li><a href="https://github.com/CorySanin/rct-screenshotter">Source</a></li>
+                    <li><a href="https://github.com/CorySanin/rct-screenshotter/blob/master/LICENSE">License</a></li>
+                </ul>
+            </div>
+        </footer>
+    </div>
+    <div id="dropzone">
+        <div class="midcenter">
+            Drop RCT save here
+        </div>
+    </div>
+    <script src="/assets/js/upload.js?v1"></script>
 </body>
 
 </html>

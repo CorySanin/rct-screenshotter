@@ -1,6 +1,6 @@
 FROM corysanin/openrct2-cli:develop-alpine AS rct2
 
-FROM node:alpine3.16 as build
+FROM node:alpine3.17 as build
 
 WORKDIR /usr/src/screenshotter
 
@@ -8,7 +8,7 @@ COPY ./package*json ./
 
 RUN npm install
 
-FROM node:alpine3.16
+FROM node:alpine3.17
 
 RUN apk add --no-cache rsync ca-certificates libpng libzip libcurl freetype fontconfig icu sdl2 speexdsp \
   && ln -sf /game /rct2

@@ -21,3 +21,18 @@ Submit a multipart post request to /upload with the following fields:
 | park     | The save file to generate a screenshot of               |
 | zoom     | The zoom level to use in the screenshot. 0-7 (optional) |
 | rotation | The rotation of the map. 0-3 (optional)                 |
+
+## Cloud Deployment
+
+Can't or don't want to mount a volume in production? Not a problem.
+
+The following arguments in the Dockerfile can be used to download the game files from Steam:
+
+| Arg      | Description                                                                  |
+|----------|------------------------------------------------------------------------------|
+| USERNAME | Steam username. Downloading the game files will be skipped if this is empty. |
+| PASSWORD | Steam password.                                                              |
+| GUARD    | A current Steam Guard token.                                                 |
+| SECRET   | The key to generate Steam Guard tokens.                                      |
+
+Only `GUARD` *or* `SECRET` need to be provided, not both.

@@ -7,6 +7,11 @@ services:
       build:
          context: ./
          dockerfile: ./Dockerfile
+         args:
+            # USERNAME: steam_username
+            # PASSWORD: steam_password
+            # SECRET: SteamDesktopAuthenticatorSharedSecret
+            # GUARD: GU4RD
       restart: "unless-stopped"
       ports:
          - 8080:8080

@@ -54,6 +54,10 @@ app.set('view engine', 'ejs');
 
 app.use('/assets/', express.static('assets'));
 
+app.get('/healthcheck', async (req, res) => {
+    res.send('Healthy');
+});
+
 app.post('/upload', upload.single('park'), async (req, res) => {
     try {
         if (!req.file) {

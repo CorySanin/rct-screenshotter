@@ -35,10 +35,15 @@ RUN npm install
 
 FROM node:alpine3.17
 
+EXPOSE 8080
+
+HEALTHCHECK  --timeout=3s \
+  CMD curl --fail http://localhost:8080/healthcheck || exit 1
+
 COPY --from=gamefiles ["/root/Steam/steamapps/common/Rollercoaster Tycoon 2", "/rct2"]
 COPY --from=gamefiles ["/root/Steam/steamapps/common/RollerCoaster Tycoon Deluxe", "/rct1"]
 
-RUN apk add --no-cache rsync ca-certificates libpng libzip libcurl freetype fontconfig icu sdl2 speexdsp \
+RUN apk add --no-cache rsync ca-certificates libpng libzip libcurl freetype fontconfig icu sdl2 speexdsp curl \
   && ln -sf /game /rct2
 COPY --from=rct2 /usr /usr
 COPY --from=rct2 /lib /lib

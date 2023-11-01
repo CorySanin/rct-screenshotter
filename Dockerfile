@@ -25,7 +25,7 @@ RUN mkdir -p "/root/Steam/steamapps/common/Rollercoaster Tycoon 2" "/root/Steam/
 
 FROM corysanin/openrct2-cli:develop-alpine AS rct2
 
-FROM node:alpine3.17 as build
+FROM node:alpine3.18 as build
 
 WORKDIR /usr/src/screenshotter
 
@@ -33,7 +33,7 @@ COPY ./package*json ./
 
 RUN npm install
 
-FROM node:alpine3.17
+FROM node:alpine3.18
 
 EXPOSE 8080
 

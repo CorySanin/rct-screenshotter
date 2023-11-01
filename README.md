@@ -2,7 +2,6 @@
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/corysanin/rct-screenshotter)](https://hub.docker.com/r/corysanin/rct-screenshotter)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/CorySanin/rct-screenshotter/docker-image.yml)](https://github.com/CorySanin/rct-screenshotter/actions)
-![Depfu](https://img.shields.io/depfu/dependencies/github/CorySanin/rct-screenshotter)
 [![GitHub repo size](https://img.shields.io/github/repo-size/CorySanin/rct-screenshotter)](https://github.com/CorySanin/rct-screenshotter)
 [![GitHub](https://img.shields.io/github/license/CorySanin/rct-screenshotter)](https://github.com/CorySanin/rct-screenshotter/blob/master/LICENSE)
 
@@ -11,6 +10,8 @@
 This project is intended to be used as a REST API for projects like [ffa-tycoon](https://github.com/CorySanin/ffa-tycoon). But it also has a form on its homepage to allow for use in a web browser.
 
 It uses OpenRCT2 to generate screenshots, and as such is compatible with RCT1, RCT2, and OpenRCT2 save formats.
+
+A demo is available [here](https://screenshot.ffa-tycoon.com/). Expect this free instance to perform slowly.
 
 ## API
 

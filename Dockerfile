@@ -33,7 +33,7 @@ COPY ./package*json ./
 
 RUN npm install
 
-FROM node:alpine3.18
+FROM node:alpine3.18 as deploy
 
 EXPOSE 8080
 

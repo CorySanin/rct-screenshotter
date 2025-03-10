@@ -62,4 +62,4 @@ RUN npm run build \
 
 USER node
 
-CMD [ "node", "index.js" ]
+CMD [ "node", "--experimental-strip-types", "src/index.ts" ]

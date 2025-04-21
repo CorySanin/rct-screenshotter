@@ -24,7 +24,7 @@ RUN mkdir -p "/root/Steam/steamapps/common/Rollercoaster Tycoon 2" "/root/Steam/
   || [ -z "$USERNAME" ]
 
 FROM corysanin/openrct2-cli:develop-alpine AS rct2
-FROM node:alpine3.19 as base
+FROM node:alpine3.21 as base
 FROM base as build
 
 WORKDIR /usr/src/screenshotter

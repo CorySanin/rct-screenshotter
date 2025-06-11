@@ -192,6 +192,11 @@ if (secureapp) {
             next(err);
         }
     });
+    secureapp.get('/token/:appname', (_: express.Request, res: express.Response) => {
+        res.send(JSON.stringify({
+            status: 'bad'
+        }));
+    });
     secureapp.use(app);
     servers.push(secureapp.listen(TOKENPORT, () => {
         console.log(`Secure server listening on port ${TOKENPORT}.`);

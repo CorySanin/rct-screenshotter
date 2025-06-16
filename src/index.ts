@@ -12,10 +12,30 @@ import { Server } from 'node:http';
 import type { UnauthorizedError, Request as JWTRequest } from "express-jwt";
 import type { StringValue } from "ms";
 
-type ScreenshotOptions = {
-    zoom: number | string,
-    rotation: number | string,
+type NumericRep = number | string
+
+/**
+ * Usage: openrct2 screenshot <file> <output_image> <width> <height> [<x> <y> <zoom> <rotation>]
+ * Usage: openrct2 screenshot <file> <output_image> giant <zoom> <rotation>
+ */
+
+type GiantScreenshotOptions = {
+    type: 'giant',
+    zoom: NumericRep,
+    rotation: NumericRep,
 };
+
+type LocalScreenshotOptions = {
+    type: 'cropped',
+    zoom: NumericRep,
+    rotation: NumericRep,
+    width: NumericRep,
+    height: NumericRep,
+    x: NumericRep,
+    y: NumericRep
+}
+
+type ScreenshotOptions = GiantScreenshotOptions | LocalScreenshotOptions;
 
 const PORT = process.env.PORT || 8080;
 const TOKENPORT = process.env.TOKENPORT || null;
@@ -34,7 +54,7 @@ const upload = multer({ dest: PARKDIR });
 
 let filenum = 0;
 
-function notStupidParseInt(v: string | undefined | number): number {
+function notStupidParseInt(v: string | undefined | number | null): number {
     if (typeof v === 'number') {
         return v;
     }
@@ -47,8 +67,27 @@ function getFileNum(): number {
 
 function getScreenshot(file: string, options: Partial<ScreenshotOptions> = {}): Promise<string> {
     return new Promise((resolve, reject) => {
+        console.log(`Generating screenshot for ${file}`);
         const destination = path.join(SCREENSHOTDIR, `screenshot_${dayjs().format('HHmmssSS')}_${getFileNum()}.png`);
-        const proc = spawn.spawn('openrct2-cli', ['screenshot', `${file}`, destination, 'giant', Math.min(Math.abs(notStupidParseInt(options.zoom || 3)), 7).toString(), (notStupidParseInt(options.rotation || 0) % 4).toString()], {
+        const args: string[] = ['screenshot', `${file}`, destination];
+        if (options.type === 'cropped') {
+            args.push(
+                notStupidParseInt(options.width || 640).toString(),
+                notStupidParseInt(options.height || 360).toString(),
+            );
+            const xArg: number = notStupidParseInt(options.x);
+            const yArg: number = notStupidParseInt(options.y);
+            if (!Number.isNaN(xArg) && !Number.isNaN(yArg)) {
+                args.push(xArg.toString(), yArg.toString());
+            }
+        }
+        else {
+            args.push('giant');
+        }
+        if (args.length !== 5) {
+            args.push(Math.min(Math.abs(notStupidParseInt(options.zoom || 3)), 7).toString(), (notStupidParseInt(options.rotation || 0) % 4).toString());
+        }
+        const proc = spawn.spawn('openrct2-cli', args, {
             stdio: ['ignore', process.stdout, process.stderr]
         });
         const timeout = setTimeout(() => {
@@ -110,10 +149,17 @@ app.post('/upload', upload.single('park'), async (req: express.Request, res: exp
             });
             return;
         }
-        const options: ScreenshotOptions = {
+        const options: Partial<ScreenshotOptions> = {
+            type: req.body.type || req.query.type || 'giant',
             zoom: req.body.zoom || req.query.zoom,
             rotation: req.body.rotation || req.query.rotation,
         };
+        if (options.type === 'cropped') {
+            options.width = req.body.width || req.query.width;
+            options.height = req.body.height || req.query.height;
+            options.x = req.body.x || req.query.x;
+            options.y = req.body.y || req.query.y;
+        }
         await serveScreenshot(req.file.path, options, res);
     }
     catch (ex) {

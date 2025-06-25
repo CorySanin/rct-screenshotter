@@ -12,7 +12,7 @@ import { Server } from 'node:http';
 import type { UnauthorizedError, Request as JWTRequest } from "express-jwt";
 import type { StringValue } from "ms";
 
-type NumericRep = number | string
+type NumericRep = number | string;
 
 /**
  * Usage: openrct2 screenshot <file> <output_image> <width> <height> [<x> <y> <zoom> <rotation>]
@@ -31,8 +31,9 @@ type LocalScreenshotOptions = {
     rotation: NumericRep,
     width: NumericRep,
     height: NumericRep,
-    x: NumericRep,
-    y: NumericRep
+    x: NumericRep|'c',
+    y: NumericRep|'c',
+    z: NumericRep
 }
 
 type ScreenshotOptions = GiantScreenshotOptions | LocalScreenshotOptions;
@@ -47,6 +48,7 @@ const PARKDIR = process.env.PARKDIR || path.join(GAMEDIR, 'save');
 const SCREENSHOTDIR = process.env.SCREENSHOTDIR || path.join(GAMEDIR, 'screenshot');
 const FILENUMMAX = 100000;
 const TIMEOUT = process.env.TIMEOUT || 20000;
+const CENTERARG = 'c';
 
 const app = express();
 const secureapp: express.Express | null = TOKENPORT && TOKENSECRET && express();
@@ -59,6 +61,17 @@ function notStupidParseInt(v: string | undefined | number | null): number {
         return v;
     }
     return v === undefined ? NaN : parseInt(v);
+}
+
+function parseXY(v: string | undefined | number | null): string | null {
+    if (v === CENTERARG) {
+        return v;
+    }
+    const num = notStupidParseInt(v);
+    if (Number.isNaN(num)) {
+        return null;
+    }
+    return num.toString();
 }
 
 function getFileNum(): number {
@@ -75,10 +88,14 @@ function getScreenshot(file: string, options: Partial<ScreenshotOptions> = {}): 
                 notStupidParseInt(options.width || 640).toString(),
                 notStupidParseInt(options.height || 360).toString(),
             );
-            const xArg: number = notStupidParseInt(options.x);
-            const yArg: number = notStupidParseInt(options.y);
-            if (!Number.isNaN(xArg) && !Number.isNaN(yArg)) {
-                args.push(xArg.toString(), yArg.toString());
+            const xArg: string | null = parseXY(options.x);
+            const yArg: string | null = parseXY(options.y);
+            if (xArg !== null && yArg !== null) {
+                args.push(xArg, yArg);
+                const zArg: number = notStupidParseInt(options.z);
+                if (!Number.isNaN(zArg)) {
+                    args.push(zArg.toString());
+                }
             }
         }
         else {
@@ -159,6 +176,7 @@ app.post('/upload', upload.single('park'), async (req: express.Request, res: exp
             options.height = req.body.height || req.query.height;
             options.x = req.body.x || req.query.x;
             options.y = req.body.y || req.query.y;
+            options.z = req.body.z || req.query.z;
         }
         await serveScreenshot(req.file.path, options, res);
     }

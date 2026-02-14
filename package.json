@@ -1,6 +1,6 @@
 {
   "name": "rct-screenshotter",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "REST API for getting screenshots of Rollercoaster Tycoon maps",
   "main": "src/index.ts",
   "type": "module",
@@ -14,14 +14,14 @@
     "express": "5.2.1",
     "express-jwt": "8.5.1",
     "jsonwebtoken": "9.0.3",
-    "ky": "1.14.2",
+    "ky": "1.14.3",
     "multer": "2.0.2"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "9.0.10",
     "@types/multer": "^2.0.0",
-    "@types/node": "^25.0.9",
+    "@types/node": "^25.2.3",
     "forking-build-shit": "1.0.5",
     "typescript": "5.9.3"
   },

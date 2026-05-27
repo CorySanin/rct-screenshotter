@@ -1,64 +1,167 @@
-name: Docker Image CI
+name: MultiArchDockerBuild
 
 on:
-  workflow_dispatch:
-    branches: [ master ]
   push:
-    branches: [ master ]
+    branches:
+      - master
   pull_request:
-    branches: [ master ]
+    branches:
+      - master
+  workflow_dispatch:
+    inputs: {}
+
+env:
+  DH_REGISTRY: docker.io
+  GH_REGISTRY: ghcr.io
+  DOCKER_USERNAME: ${{ vars.DOCKER_USERNAME }}
+  TAG: sha-${{ github.sha }}
+  ARTIFACT_SUFFIX: -ci-artifacts
 
 jobs:
+  varinit:
+    name: Define workflow variables
+    permissions: {}
+    runs-on: ubuntu-24.04
+    outputs:
+      image_name: ${{ steps.image.outputs.image_name }}
+      image_labels: ${{ steps.labels.outputs.labels }}
+      repo_name: ${{ steps.repo.outputs.repo_name }}
+    steps:
+      - name: Lowercase image name
+        id: image
+        run: |
+          echo "image_name=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+      - name: Lowercase repo name
+        id: repo
+        run: |
+          echo "repo_name=$(echo '${{ github.event.repository.name }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+      - name: Define image version
+        if: "!startsWith(github.ref, 'refs/tags/v')"
+        run: echo "IMG_VERSION=develop" >> $GITHUB_ENV
+      - name: Define image version (release)
+        if: "startsWith(github.ref, 'refs/tags/v')"
+        run: echo "IMG_VERSION=${{ github.ref_name }}" >> $GITHUB_ENV
+      - name: Define image labels
+        id: labels
+        run: |
+          {
+            echo "labels<<EOF"
+            echo "org.opencontainers.image.title=rct-screenshotter"
+            echo "org.opencontainers.image.description=REST API for getting screenshots of Rollercoaster Tycoon maps"
+            echo "org.opencontainers.image.licenses=MIT"
+            echo "org.opencontainers.image.version=${{ env.IMG_VERSION }}"
+            echo "org.opencontainers.image.revision=${{ github.sha }}"
+            echo "org.opencontainers.image.created=$(date -u +'%Y-%m-%dT%H:%M:%S%:z')"
+            echo "org.opencontainers.image.authors=Cory Sanin <corysanin@outlook.com>"
+            echo "org.opencontainers.image.url=https://sanin.dev/project/ffa-tycoon"
+            echo "org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}"
+            echo "org.opencontainers.image.documentation=${{ github.server_url }}/${{ github.repository }}#readme"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
-  build:
-    runs-on: ubuntu-latest
-    env:
-      DH_REGISTRY: docker.io
-      GH_REGISTRY: ghcr.io
-      IMAGE_NAME: ${{ github.repository }}
-      REPOSITORY: ${{ github.event.repository.name }}
-      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  build_image:
+    name: Build Docker image
+    strategy:
+      matrix:
+        arch:
+          - x86
+          - ARM
+        include:
+          - arch: x86
+            os: ubuntu-24.04
+          - arch: ARM
+            os: ubuntu-24.04-arm
+    runs-on: ${{ matrix.os }}
+    needs:
+      - varinit
     permissions:
       contents: read
       packages: write
+    env:
+      IMAGE_NAME: ${{ needs.varinit.outputs.image_name }}
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag "$DOCKER_USERNAME/$REPOSITORY:latest"
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.GH_REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v1
-      if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-      with:
-        registry: ${{ env.DH_REGISTRY }}
-        username: ${{ env.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build and push release Docker image
+        uses: docker/build-push-action@v6
+        env:
+          BUILDX_NO_DEFAULT_ATTESTATIONS: 1
+        with:
+          target: deploy
+          push: true
+          tags: ${{ env.GH_REGISTRY }}/${{ env.IMAGE_NAME }}${{ env.ARTIFACT_SUFFIX }}:${{ env.TAG }}-${{ matrix.arch }}
+          labels: ${{ needs.varinit.outputs.image_labels }}
+          cache-from: type=gha,scope=${{ github.workflow }}
+          cache-to: type=gha,mode=max,scope=${{ github.workflow }}
+  
+  combine-images:
+    name: Combine Docker images
+    runs-on: ubuntu-24.04
+    needs:
+      - varinit
+      - build_image
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE_NAME: ${{ needs.varinit.outputs.image_name }}
+      REPOSITORY: ${{ needs.varinit.outputs.repo_name }}
 
-    - name: Push to Docker Hub
-      if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-      run: docker push "$DOCKER_USERNAME/$REPOSITORY:latest"
-    
-    - name: Log in to the Container registry
-      uses: docker/login-action@v1
-      with:
-        registry: ${{ env.GH_REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    
-    - name: Extract metadata (tags, labels) for Docker
-      id: meta
-      uses: docker/metadata-action@v3
-      with:
-        images: ${{ env.GH_REGISTRY }}/${{ env.IMAGE_NAME }}
+    steps:
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.GH_REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.DH_REGISTRY }}
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Push to GitHub
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-    
+      - name: Define release tag patterns
+        run: |
+          {
+            echo "PIMAGES<<EOF"
+            echo "${{ env.DOCKER_USERNAME }}/${{ env.REPOSITORY }}"
+            echo "${{ env.GH_REGISTRY }}/${{ env.IMAGE_NAME }}"
+            echo "EOF"
+            echo "PTAGS<<EOF"
+            echo "type=raw,value=latest"
+            echo "type=ref,event=branch"
+            echo "type=ref,event=pr"
+            echo "EOF"
+          } >> "$GITHUB_ENV"
+      
+      - name: Extract metadata for Docker image
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.PIMAGES }}
+          tags: ${{ env.PTAGS }}
+          labels: ${{ needs.varinit.outputs.image_labels }}
+
+      - name: Combine JVM images into single manifest
+        uses: int128/docker-manifest-create-action@v2
+        with:
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          index-annotations: ${{ steps.meta.outputs.labels }}
+          sources: |
+            ${{ env.GH_REGISTRY }}/${{ env.IMAGE_NAME }}${{ env.ARTIFACT_SUFFIX }}:${{ env.TAG }}-x86
+            ${{ env.GH_REGISTRY }}/${{ env.IMAGE_NAME }}${{ env.ARTIFACT_SUFFIX }}:${{ env.TAG }}-ARM

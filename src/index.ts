@@ -31,8 +31,8 @@ type LocalScreenshotOptions = {
     rotation: NumericRep,
     width: NumericRep,
     height: NumericRep,
-    x: NumericRep|'c',
-    y: NumericRep|'c',
+    x: NumericRep | 'c',
+    y: NumericRep | 'c',
     z: NumericRep
 }
 
@@ -42,7 +42,7 @@ const PORT = process.env.PORT || 8080;
 const TOKENPORT = process.env.TOKENPORT || null;
 const TOKENSECRET = process.env.TOKENSECRET || null;
 const TOKENEXP = process.env.TOKENEXP || '1y';
-const HOME = process.env[(process.platform === 'win32') ? 'USERPROFILE' : 'HOME'];
+const HOME = process.env[(process.platform === 'win32') ? 'USERPROFILE' : 'HOME'] || '';
 const GAMEDIR = process.env.GAMEDIR || path.join(HOME, (process.platform === 'win32') ? 'Documents' : '.config', 'OpenRCT2');
 const PARKDIR = process.env.PARKDIR || path.join(GAMEDIR, 'save');
 const SCREENSHOTDIR = process.env.SCREENSHOTDIR || path.join(GAMEDIR, 'screenshot');
@@ -51,7 +51,7 @@ const TIMEOUT = process.env.TIMEOUT || 20000;
 const CENTERARG = 'c';
 
 const app = express();
-const secureapp: express.Express | null = TOKENPORT && TOKENSECRET && express();
+const secureapp: express.Express | null = (TOKENPORT && TOKENSECRET && express()) || null;
 const upload = multer({ dest: PARKDIR });
 
 let filenum = 0;
@@ -60,7 +60,10 @@ function notStupidParseInt(v: string | undefined | number | null): number {
     if (typeof v === 'number') {
         return v;
     }
-    return v === undefined ? NaN : parseInt(v);
+    if (v === undefined || v === null) {
+        return NaN;
+    }
+    return parseInt(v);
 }
 
 function parseXY(v: string | undefined | number | null): string | null {
@@ -198,8 +201,13 @@ app.get('/upload', async (req: express.Request, res: express.Response) => {
         }
         const park = await ky.get(req.query.url);
         const filename = path.join(PARKDIR, `download_${dayjs().format('YYYYMMDD')}_${getFileNum()}.sv6`);
+        const body = park.body;
 
-        await fsp.writeFile(filename, park.body);
+        if (!body) {
+            throw new Error('body was null');
+        }
+
+        await fsp.writeFile(filename, body);
 
         await serveScreenshot(filename, req.query, res);
     }
@@ -223,7 +231,7 @@ app.get('/', (_, res: express.Response) => {
 
 const servers: Server[] = [];
 
-if (secureapp) {
+if (secureapp && TOKENSECRET) {
     app.get('/token/:appname', (req: express.Request, res: express.Response) => {
         const resp: any = {
             status: 'bad'
@@ -242,7 +250,7 @@ if (secureapp) {
 
     secureapp.set('trust proxy', 1);
     secureapp.use(expressjwt({
-        secret: TOKENSECRET,
+        secret: TOKENSECRET!,
         algorithms: ['HS256'],
         credentialsRequired: true
     }));

@@ -29,9 +29,16 @@ FROM base AS build
 
 WORKDIR /usr/src/screenshotter
 
-COPY ./package*json ./
+RUN apk add --no-cache pnpm
 
-RUN npm install
+RUN --mount=target=/usr/src/screenshotter/package.json,source=package.json \
+    --mount=target=/usr/src/screenshotter/pnpm-lock.yaml,source=pnpm-lock.yaml \
+  pnpm install
+
+COPY --link --exclude=config/ . .
+
+RUN pnpm run build && \
+  pnpm install --prod
 
 FROM base AS deploy
 
@@ -50,16 +57,12 @@ COPY --from=rct2 /lib /lib
 
 WORKDIR /usr/src/screenshotter
 
-COPY --from=build /usr/src/screenshotter /usr/src/screenshotter
-
-COPY ./config /home/node/.config/OpenRCT2/
-COPY . .
-
-RUN npm run build \
-  && npm install --production\
-  && mkdir /home/node/.config/OpenRCT2/object \
-  && chown -R node:node /home/node/.config/OpenRCT2
+COPY --from=build --chown=node:node /usr/src/screenshotter /usr/src/screenshotter
 
 USER node
+
+RUN mkdir -p /home/node/.config/OpenRCT2/object
+
+COPY --chown=node:node ./config /home/node/.config/OpenRCT2/
 
 CMD [ "node", "--experimental-strip-types", "src/index.ts" ]

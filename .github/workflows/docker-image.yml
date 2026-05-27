@@ -99,6 +99,8 @@ jobs:
         env:
           BUILDX_NO_DEFAULT_ATTESTATIONS: 1
         with:
+          context: .
+          file: ./Dockerfile.simple
           target: deploy
           push: true
           tags: ${{ env.GH_REGISTRY }}/${{ env.IMAGE_NAME }}${{ env.ARTIFACT_SUFFIX }}:${{ env.TAG }}-${{ matrix.arch }}

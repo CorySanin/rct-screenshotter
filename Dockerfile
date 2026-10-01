@@ -25,20 +25,31 @@ RUN mkdir -p "/root/Steam/steamapps/common/Rollercoaster Tycoon 2" "/root/Steam/
 
 FROM corysanin/openrct2-cli:develop-alpine AS rct2
 FROM node:alpine3.21 AS base
-FROM base AS build
+FROM base AS buildbase
+RUN apk add --no-cache pnpm
+FROM buildbase AS build
 
 WORKDIR /usr/src/screenshotter
 
-RUN apk add --no-cache pnpm
-
 RUN --mount=target=/usr/src/screenshotter/package.json,source=package.json \
     --mount=target=/usr/src/screenshotter/pnpm-lock.yaml,source=pnpm-lock.yaml \
+    --mount=target=/usr/src/screenshotter/pnpm-workspace.yaml,source=pnpm-workspace.yaml \
   pnpm install
 
 COPY --link --exclude=config/ . .
 
-RUN pnpm run build && \
+RUN pnpm run build
+
+
+FROM buildbase AS staging
+
+WORKDIR /usr/src/screenshotter
+RUN --mount=target=/usr/src/screenshotter/package.json,source=package.json \
+    --mount=target=/usr/src/screenshotter/pnpm-lock.yaml,source=pnpm-lock.yaml \
+    --mount=target=/usr/src/screenshotter/pnpm-workspace.yaml,source=pnpm-workspace.yaml \
   pnpm install --prod
+
+COPY --link --exclude=node_modules --from=build /usr/src/screenshotter /usr/src/screenshotter
 
 FROM base AS deploy
 
@@ -57,7 +68,7 @@ COPY --from=rct2 /lib /lib
 
 WORKDIR /usr/src/screenshotter
 
-COPY --from=build --chown=node:node /usr/src/screenshotter /usr/src/screenshotter
+COPY --from=staging --chown=node:node /usr/src/screenshotter /usr/src/screenshotter
 
 USER node
 
